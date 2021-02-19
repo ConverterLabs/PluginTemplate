@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LEDevice DevicePlugin = "LeCroyPlugin.dll" DeviceName = "PluginTemplate"/>	
+<LEDevice DevicePlugin = "PluginTemplate.dll" DeviceName = "PluginTemplate"/>	
