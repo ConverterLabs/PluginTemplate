@@ -69,6 +69,7 @@ bool WorkClass::Abort()
 void WorkClass::process()
 {
     this->ThreadRunning.lock();
+    Messenger.Info( DeviceName + " loaded.");
 
     CreateSymbols Symbols(this, DeviceName, m_data);
     Symbols.PublishParameters();
@@ -99,7 +100,9 @@ void WorkClass::process()
                //SendBufferMutex.unlock();
 
     }
-    Messenger.Info("I am dead.");
+
+
+    Messenger.Info( DeviceName + " closed.");
     this->ThreadRunning.unlock();
     emit ThreadFinished();
     Finished = true;
