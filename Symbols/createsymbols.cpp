@@ -92,6 +92,17 @@ void CreateSymbols::PublishVector()
     emit MessageSender("publish", ID,  _Data);
 }
 
+void CreateSymbols::PublishState(QString ID)
+{
+    InterfaceData _Data;
+    _Data.SetDataType("boolean");
+    _Data.SetType("State");
+    _Data.SetData(false);
+    m_data[ID] = _Data;
+
+    emit MessageSender("publish", ID,  _Data);
+}
+
 void CreateSymbols::PublishParameters()
 {
     InterfaceData Data;
@@ -100,8 +111,9 @@ void CreateSymbols::PublishParameters()
 
     PublishUint32();
     PublishGUISelection();
-    PublishDouble();;
+    PublishDouble();
     PublishVector();
+    PublishState(DeviceName + "::ReadChannels");
 
     emit MessageSender("publish_finished", DeviceName, Data);
 }

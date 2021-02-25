@@ -42,7 +42,7 @@ private:
     void PublishUint32();
     void PublishDouble();
     void PublishVector();
-
+    void PublishState(QString ID);
 
 
 };

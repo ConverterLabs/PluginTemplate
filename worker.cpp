@@ -74,6 +74,7 @@ void WorkClass::process()
     CreateSymbols Symbols(this, DeviceName, m_data);
     Symbols.PublishParameters();
     uint32_t counter = 0;
+    SymbolsPublished = true;
     // First Loop
     while(!Abort())
     {       
@@ -148,7 +149,8 @@ void WorkClass::MessageReceiver(const QString &Command, const QString &ID, Inter
     {
         //Use if real device has to set it later:
         this->m_data[ID].SetDataTimeOut(Data.GetData(),ID, &Messenger);
-
+        if(Data.IsBool())
+            qDebug() << "Received" << Data.GetBool();
         SendBufferMutex.lock();
         //Send signal ....
 
