@@ -47,6 +47,7 @@
 #include <functional>
 
 #include "Symbols/createsymbols.h"
+#include <ctime>
 
 WorkClass::WorkClass(QString DeviceName_)
     : QObject(nullptr), SymbolsPublished(false), Messenger(this, DeviceName_)
@@ -71,11 +72,16 @@ void WorkClass::process()
     this->ThreadRunning.lock();
     Messenger.Info( DeviceName + " loaded.");
 
+    std::srand(std::time(nullptr)); // use current time as seed for random generator
+
+
     CreateSymbols Symbols(this, DeviceName, m_data);
     Symbols.PublishParameters();
     uint32_t counter = 0;
     SymbolsPublished = true;
     // First Loop
+    double omega = 2*M_PI*50;
+    double t0 = 0;
     while(!Abort())
     {       
                //Send neu data of published symbol do LabAnalyser
@@ -86,6 +92,41 @@ void WorkClass::process()
                //Send a Message to the output window of Labanalyser
                if(counter % 10 == 0)
                     Messenger.Info("I am alive.");
+
+
+               t0 += 0.1;
+
+               std::vector<double> x;
+               std::vector<double> y, y2;
+               for(auto i = 0; i < 10000; i++)
+               {
+                   double randomn =  (double)(1 +(std::rand()/((RAND_MAX + 1u)/100)))/10000.0;
+                   double randomn2 =  (double)(1 +(std::rand()/((RAND_MAX + 1u)/100)))/10000.0;
+
+                   x.push_back(static_cast<double>( i/100000.));
+                   y.push_back(sin((t0+x.back())*omega)+randomn);
+                   y2.push_back(cos((t0+x.back())*omega)+randomn2);
+
+               }
+
+               auto Sx = boost::shared_ptr<std::vector<double>>(new std::vector<double>(x));
+               auto Sy = boost::shared_ptr<std::vector<double>>(new std::vector<double>(y));
+               auto Sy2 = boost::shared_ptr<std::vector<double>>(new std::vector<double>(y2));
+
+               InterfaceData _Data;
+               _Data.SetDataType("vector<double>");
+               _Data.SetType("Data");
+               _Data.SetData(DataPair(Sx,Sy));
+               ID = DeviceName + "::Test::Vector";
+               emit MessageSender("set", ID,  _Data);
+
+               _Data.SetDataType("vector<double>");
+               _Data.SetType("Data");
+               _Data.SetData(DataPair(Sx,Sy2));
+               ID = DeviceName + "::Test::Vector2";
+               emit MessageSender("set", ID,  _Data);
+
+               t0 += 0.1;
 
                //process Events
                QCoreApplication::processEvents();

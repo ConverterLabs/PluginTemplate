@@ -90,6 +90,12 @@ void CreateSymbols::PublishVector()
     QString ID;
     ID += DeviceName + "::Test::Vector";
     emit MessageSender("publish", ID,  _Data);
+
+    _Data.SetDataType("vector<double>");
+    _Data.SetType("Data");
+    _Data.SetData(DataPair(Sx,Sy));
+    ID = DeviceName + "::Test::Vector2";
+    emit MessageSender("publish", ID,  _Data);
 }
 
 void CreateSymbols::PublishState(QString ID)
