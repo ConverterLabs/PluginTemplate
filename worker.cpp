@@ -103,7 +103,7 @@ void WorkClass::process()
                    double randomn =  (double)(1 +(std::rand()/((RAND_MAX + 1u)/100)))/10000.0;
                    double randomn2 =  (double)(1 +(std::rand()/((RAND_MAX + 1u)/100)))/10000.0;
 
-                   x.push_back(static_cast<double>( i/100000.));
+                   x.push_back(t0 + static_cast<double>( i/100000.));
                    y.push_back(sin((t0+x.back())*omega)+randomn);
                    y2.push_back(cos((t0+x.back())*omega)+randomn2);
 
@@ -116,13 +116,14 @@ void WorkClass::process()
                InterfaceData _Data;
                _Data.SetDataType("vector<double>");
                _Data.SetType("Data");
-               _Data.SetData(DataPair(Sx,Sy));
+               _Data.SetData(DataPair(Sx,Sy, t0));
                ID = DeviceName + "::Test::Vector";
                emit MessageSender("set", ID,  _Data);
 
+               QThread::msleep(20);
                _Data.SetDataType("vector<double>");
                _Data.SetType("Data");
-               _Data.SetData(DataPair(Sx,Sy2));
+               _Data.SetData(DataPair(Sx,Sy2, t0));
                ID = DeviceName + "::Test::Vector2";
                emit MessageSender("set", ID,  _Data);
 
@@ -132,7 +133,7 @@ void WorkClass::process()
                QCoreApplication::processEvents();
 
                //always use a sleep in this loop or the cpu load will be massive
-               QThread::msleep(100);
+               QThread::msleep(35);
 
 
                //Check if Data2Send
