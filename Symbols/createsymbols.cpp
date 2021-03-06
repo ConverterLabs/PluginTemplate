@@ -45,16 +45,20 @@ void CreateSymbols::PublishGUISelection()
     emit MessageSender("publish", ID,  _Data);
 }
 
-void CreateSymbols::PublishUint32()
+
+void CreateSymbols::PublishUint32(int index)
 {
     //Publish a Signal that resets the trigger condition
     QString ID;
-    ID += DeviceName + "::Test::Uint32";
+    ID += DeviceName + "::Test::Uint32::" + QString::number(index);
     InterfaceData _Data;
     _Data.SetType("Data");
     _Data.SetData((uint32_t)1);
     _Data.SetStateDependency("");
     this->m_data[ID] = _Data;
+    emit MessageSender("publish", ID,  _Data);
+    _Data.SetType("Parameter");
+
     emit MessageSender("publish", ID,  _Data);
 }
 
@@ -115,7 +119,8 @@ void CreateSymbols::PublishParameters()
     Data.SetData(0);
     emit MessageSender("publish_start", DeviceName, Data);
 
-    PublishUint32();
+    for(int i = 30; i>= 0; i--)
+        PublishUint32(i);
     PublishGUISelection();
     PublishDouble();
     PublishVector();

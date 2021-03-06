@@ -85,7 +85,7 @@ void WorkClass::process()
     while(!Abort())
     {       
                //Send neu data of published symbol do LabAnalyser
-               QString ID = DeviceName + "::Test::Uint32";
+               QString ID = DeviceName + "::Test::Uint32::0";
                m_data[ID].SetDataKeepType(counter++);
                Messenger.MessageSender("set", ID, m_data[ID]);
 
@@ -200,5 +200,9 @@ void WorkClass::MessageReceiver(const QString &Command, const QString &ID, Inter
         SendBufferMutex.unlock();
 
     }
+    else
+        emit MessageSender(Command,ID,Data);
+
+
     return;
 }

@@ -39,7 +39,7 @@ private:
     std::map<QString, DataStorage> &m_data;
 
     void PublishGUISelection();
-    void PublishUint32();
+    void PublishUint32(int index);
     void PublishDouble();
     void PublishVector();
     void PublishState(QString ID);
