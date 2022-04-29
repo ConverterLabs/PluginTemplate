@@ -74,9 +74,18 @@ void WorkClass::process()
 
     std::srand(std::time(nullptr)); // use current time as seed for random generator
 
+    Error = 1;
+    Messenger.Error("Error during loading.");
 
-    CreateSymbols Symbols(this, DeviceName, m_data);
-    Symbols.PublishParameters();
+
+    //Messenger.MessageSender("CloseProject", "PluginName", InterfaceData());
+
+    if(!Abort())
+    {
+        CreateSymbols Symbols(this, DeviceName, m_data);
+        Symbols.PublishParameters();
+
+    }
     uint32_t counter = 0;
     SymbolsPublished = true;
     // First Loop
@@ -84,63 +93,62 @@ void WorkClass::process()
     double t0 = 0;
     while(!Abort())
     {       
-               //Send neu data of published symbol do LabAnalyser
-               QString ID = DeviceName + "::Test::Uint32::0";
-               m_data[ID].SetDataKeepType(counter++);
-               Messenger.MessageSender("set", ID, m_data[ID]);
+           //Send neu data of published symbol do LabAnalyser
+           QString ID = DeviceName + "::Test::Uint32::0";
+           m_data[ID].SetDataKeepType(counter++);
+           Messenger.MessageSender("set", ID, m_data[ID]);
 
-               //Send a Message to the output window of Labanalyser
-               if(counter % 10 == 0)
-                    Messenger.Info("I am alive.");
+           //Send a Message to the output window of Labanalyser
+           if(counter % 10 == 0)
+                Messenger.Info("I am alive.");
 
+           t0 += 0.1;
 
-               t0 += 0.1;
+           std::vector<double> x;
+           std::vector<double> y, y2;
+           for(auto i = 0; i < 10000; i++)
+           {
+               double randomn =  (double)(1 +(std::rand()/((RAND_MAX + 1u)/100)))/10000.0;
+               double randomn2 =  (double)(1 +(std::rand()/((RAND_MAX + 1u)/100)))/10000.0;
 
-               std::vector<double> x;
-               std::vector<double> y, y2;
-               for(auto i = 0; i < 10000; i++)
-               {
-                   double randomn =  (double)(1 +(std::rand()/((RAND_MAX + 1u)/100)))/10000.0;
-                   double randomn2 =  (double)(1 +(std::rand()/((RAND_MAX + 1u)/100)))/10000.0;
+               x.push_back(t0 + static_cast<double>( i/100000.));
+               y.push_back(sin((t0+x.back())*omega)+randomn);
+               y2.push_back(cos((t0+x.back())*omega)+randomn2);
 
-                   x.push_back(t0 + static_cast<double>( i/100000.));
-                   y.push_back(sin((t0+x.back())*omega)+randomn);
-                   y2.push_back(cos((t0+x.back())*omega)+randomn2);
+           }
 
-               }
+           auto Sx = boost::shared_ptr<std::vector<double>>(new std::vector<double>(x));
+           auto Sy = boost::shared_ptr<std::vector<double>>(new std::vector<double>(y));
+           auto Sy2 = boost::shared_ptr<std::vector<double>>(new std::vector<double>(y2));
 
-               auto Sx = boost::shared_ptr<std::vector<double>>(new std::vector<double>(x));
-               auto Sy = boost::shared_ptr<std::vector<double>>(new std::vector<double>(y));
-               auto Sy2 = boost::shared_ptr<std::vector<double>>(new std::vector<double>(y2));
+           InterfaceData _Data;
+           _Data.SetDataType("vector<double>");
+           _Data.SetType("Data");
+           _Data.SetData(DataPair(Sx,Sy, t0));
+           ID = DeviceName + "::Test::Vector";
+           emit MessageSender("set", ID,  _Data);
 
-               InterfaceData _Data;
-               _Data.SetDataType("vector<double>");
-               _Data.SetType("Data");
-               _Data.SetData(DataPair(Sx,Sy, t0));
-               ID = DeviceName + "::Test::Vector";
-               emit MessageSender("set", ID,  _Data);
+           QThread::msleep(20);
+           _Data.SetDataType("vector<double>");
+           _Data.SetType("Data");
+           _Data.SetData(DataPair(Sx,Sy2, t0));
+           ID = DeviceName + "::Test::Vector2";
+           emit MessageSender("set", ID,  _Data);
 
-               QThread::msleep(20);
-               _Data.SetDataType("vector<double>");
-               _Data.SetType("Data");
-               _Data.SetData(DataPair(Sx,Sy2, t0));
-               ID = DeviceName + "::Test::Vector2";
-               emit MessageSender("set", ID,  _Data);
+           t0 += 0.1;
 
-               t0 += 0.1;
+           //process Events
+           QCoreApplication::processEvents();
 
-               //process Events
-               QCoreApplication::processEvents();
-
-               //always use a sleep in this loop or the cpu load will be massive
-               QThread::msleep(35);
-
-
-               //Check if Data2Send
-               //SendBufferMutex.lock();
+           //always use a sleep in this loop or the cpu load will be massive
+           QThread::msleep(35);
 
 
-               //SendBufferMutex.unlock();
+           //Check if Data2Send
+           //SendBufferMutex.lock();
+
+
+           //SendBufferMutex.unlock();
 
     }
 
@@ -164,6 +172,9 @@ void WorkClass::MessageReceiver(const QString &Command, const QString &ID, Inter
 
     if(Command == "get")
     {
+        InterfaceData Dat = (this->m_data[ID]);
+        Dat.SetDataRaw(this->m_data[ID].GetData());
+        emit MessageSender("set", ID , Dat);
     }
     else if(Command == "load")
     {
@@ -191,6 +202,8 @@ void WorkClass::MessageReceiver(const QString &Command, const QString &ID, Inter
     {
         //Use if real device has to set it later:
         this->m_data[ID].SetDataTimeOut(Data.GetData(),ID, &Messenger);
+        this->m_data[ID].SetDataRaw(Data.GetData());
+
         if(Data.IsBool())
             qDebug() << "Received" << Data.GetBool();
         SendBufferMutex.lock();

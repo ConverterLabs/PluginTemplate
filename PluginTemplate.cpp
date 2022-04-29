@@ -37,17 +37,21 @@ PluginTemplate_Class::PluginTemplate_Class(QObject* messenger_): messenger(messe
 void PluginTemplate_Class::ThreadFinished()
 {
     ThreadFinishedSignal = true;
+    Worker = nullptr;
 }
 
 PluginTemplate_Class::~PluginTemplate_Class()
 {
-    if(Worker->isRunning())
+    if(Worker != nullptr)
     {
-        Work->Stop();
-        while(!Work->IsFinished())
-            QThread::msleep(1);
-        Worker->quit();
-        Worker->wait();
+        if(Worker->isRunning())
+        {
+            Work->Stop();
+            while(!Work->IsFinished())
+                QThread::msleep(1);
+            Worker->quit();
+            Worker->wait();
+        }
     }
 }
 
@@ -68,6 +72,8 @@ void PluginTemplate_Class::Initialize()
 
     connect(Work, SIGNAL(ThreadFinished()), Worker, SLOT(quit()));
     connect(Work, SIGNAL(ThreadFinished()), Worker, SLOT(deleteLater()));
+    connect(Work, SIGNAL(ThreadFinished()), this, SLOT(ThreadFinished()));
+
 
     Worker->start();
     Info("PluginTemplate Loaded");
