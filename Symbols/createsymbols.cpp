@@ -62,6 +62,34 @@ void CreateSymbols::PublishUint32(int index)
     emit MessageSender("publish", ID,  _Data);
 }
 
+void CreateSymbols::PublishBool(int index)
+{
+    //Publish a Signal that resets the trigger condition
+    QString ID;
+    ID += DeviceName + "::Test::BOOL::" + QString::number(index);
+    InterfaceData _Data;
+    _Data.SetType("Data");
+    _Data.SetData((bool)1);
+    _Data.SetStateDependency("");
+    this->m_data[ID] = _Data;
+    emit MessageSender("publish", ID,  _Data);
+
+}
+
+void CreateSymbols::PublishBoolP(int index)
+{
+    //Publish a Signal that resets the trigger condition
+    QString ID;
+    ID += DeviceName + "::Test::BOOLP::" + QString::number(index);
+    InterfaceData _Data;
+    _Data.SetType("Parameter");
+    _Data.SetData((bool)1);
+    _Data.SetStateDependency("");
+    this->m_data[ID] = _Data;
+    emit MessageSender("publish", ID,  _Data);
+
+}
+
 void CreateSymbols::PublishDouble()
 {
     //Publish Parameter Buffer SPS Time
@@ -120,7 +148,13 @@ void CreateSymbols::PublishParameters()
     emit MessageSender("publish_start", DeviceName, Data);
 
     for(int i = 30; i>= 0; i--)
+    {
         PublishUint32(i);
+        PublishBool(i);
+        PublishBoolP(i);
+
+    }
+
     PublishGUISelection();
     PublishDouble();
     PublishVector();

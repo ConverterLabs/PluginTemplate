@@ -40,6 +40,9 @@ private:
 
     void PublishGUISelection();
     void PublishUint32(int index);
+    void PublishBool(int index);
+    void PublishBoolP(int index);
+
     void PublishDouble();
     void PublishVector();
     void PublishState(QString ID);

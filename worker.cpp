@@ -74,8 +74,8 @@ void WorkClass::process()
 
     std::srand(std::time(nullptr)); // use current time as seed for random generator
 
-    Error = 1;
-    Messenger.Error("Error during loading.");
+    //Error = 1;
+    //Messenger.Error("Error during loading.");
 
 
     //Messenger.MessageSender("CloseProject", "PluginName", InterfaceData());
