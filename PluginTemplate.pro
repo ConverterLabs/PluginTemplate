@@ -30,8 +30,6 @@ QT             += widgets
 OBJECTS_DIR=$$builddir
 DESTDIR=$$builddir
 
-INCLUDEPATH += C:/libraries/boost_1_59_0
-
 DEFINES +=  PluginTemplate_LIBRARY
 DEFINES +=  WIN32_LEAN_AND_MEAN
 
@@ -53,8 +51,8 @@ HEADERS += \
             worker.h
 
 TARGET          = $$qtLibraryTarget(PluginTemplate)
-Debug:DESTDIR         = ../../plugins
-Release:DESTDIR         = C:/LabAnalyser
+Debug:DESTDIR         = ../plugins
+Release:DESTDIR         = C:/LA2
 
 #QMAKE_CXXFLAGS_RELEASE += -O1
 QMAKE_CXXFLAGS_RELEASE -= -O
